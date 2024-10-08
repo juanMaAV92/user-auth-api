@@ -29,19 +29,20 @@
 ```bash
 user-auth-api/
 ├── cmd/
-│   └── main.go        # Inicia el servidor y dependencias
+│   ├── routes/           # Definición de rutas
+│   ├── handlers/         # Controladores de la API
+│   ├── middlewares/      # 
+│   └── server.go         # Inicia el servidor y dependencias
 ├── config/
-│   └── config.go      #  Cargar configuraciones (puerto, base de datos, etc.)
+│   └── config.go         #  Cargar configuraciones (puerto, base de datos, etc.)
 ├── internal/
-│   ├── controllers/   # Controladores de la API
-│   │   └── auth_controller.go  # Controlador para login y logout
-│   ├── middleware/     # 
-│   ├── models/         # Modelos de la base de datos (User, Organization)
-│   ├── repositories/   # Conexión a la base de datos
-│   ├── routes/         # Definición de rutas
-│   └── services/       # Lógica de negocio (User, Organization)
-├── main.go             # Punto de entrada de la aplicación
-└── README.md          # Documentación del proyecto
+│   ├── models/           # Modelos de la base de datos (User, Organization)
+│   ├── repositories/     # Conexión a la base de datos
+│   └── services/         # Lógica de negocio (User, Organization)
+├── utils/                # Funciones de utilidad (hashing, validación, etc.)
+├── common/               # Definiciones comunes (errores, constantes, etc.)
+├── main.go               # Punto de entrada de la aplicación
+└── README.md             # Documentación del proyecto
 ```
 
 ## Estrategia de Autenticación y Autorización
