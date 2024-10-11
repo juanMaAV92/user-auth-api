@@ -1,7 +1,14 @@
-# user-auth-ap
+# user-auth-api
 
-- [Características](#características)
+API de autenticación y autorización de usuarios construida con Go y Fiber. Está diseñada siguiendo una arquitectura orientada a microservicios, con el objetivo de ser escalable, eficiente y fácil de integrar con otros servicios.
+
+Los endpoints de autenticación y autorización implementan un sistema robusto utilizando **JWT** y **Refresh Tokens**. Cuando un usuario realiza una petición, el microservicio público (gateway) valida el token y redirige la solicitud al servicio correspondiente. En caso de que el **JWT** haya expirado, el servicio de autenticación permite renovar el token utilizando el **Refresh Token**, asegurando sesiones seguras y controladas. Además, el sistema garantiza que solo se permita una sesión activa por usuario, invalidando los tokens anteriores al iniciar sesión en un nuevo dispositivo.
+
 - [Estructura del Proyecto](#estructura-del-proyecto)
+- [Endpoints](#endpoints)
+  - [Autenticación](#autenticación)
+  - [Usuarios](#usuarios)
+  - [Organizaciones](#organizaciones)
 - [Estrategia de Autenticación y Autorización](#estrategia-de-autenticación-y-autorización)
   - [1. Creación de Tokens](#1-creación-de-tokens)
     - [Proceso de Login:](#proceso-de-login)
@@ -13,16 +20,6 @@
 - [Instalación y Configuración](#instalación-y-configuración)
 - [Contribuciones](#contribuciones)
 
-
-**User Auth API** es una API de autenticación, autorización y gestion de usarios, construida con el framework **GO-Fiber**. Proporciona un sistema de autenticación seguro utilizando **JWT** y **Refresh Tokens**, y está diseñada para integrarse con otras APIs para validación de sesiones y permisos de usuario.
-
-## Características
-
-- **Autenticación con JWT**: Los usuarios se autentican con un JSON Web Token (JWT) que contiene sus credenciales.
-- **Refresh Tokens**: Los JWT tienen una vida corta, y los usuarios obtienen un **Refresh Token** para renovar el JWT cuando este expira.
-- **Control de Sesiones**: Solo se permite una sesión activa por usuario; los tokens antiguos se invalidan en nuevas sesiones.
-- **Revocación de Tokens**: Los tokens anteriores se revocan para evitar que puedan ser reutilizados.
-- **Roles y Permisos**: Los roles y permisos están gestionados con un modelo relacional, que permite restringir el acceso a diferentes rutas de la API según las reglas de negocio.
 
 ## Estructura del Proyecto
 
@@ -44,6 +41,26 @@ user-auth-api/
 ├── main.go               # Punto de entrada de la aplicación
 └── README.md             # Documentación del proyecto
 ```
+
+## Endpoints
+
+### Autenticación
+1. **POST /auth/login**: Permite que los usuarios inicien sesión proporcionando credenciales válidas y reciban un par de tokens (JWT + Refresh Token).
+2. **POST /auth/logout**: Invalida tanto el JWT como el Refresh Token del usuario, cerrando la sesión de forma segura.
+3. **POST /auth/refresh**: Permite generar un nuevo JWT si el anterior ha expirado, usando un Refresh Token válido. Si el **Refresh Token** ha expirado, la sesión se cerrará. Si faltan menos de 24 horas para que el **Refresh Token** expire, se emitirá un nuevo Refresh Token junto con el JWT.
+
+### Usuarios
+1. **GET /users/:id**: Obtiene un usuario por ID.
+2. **POST /users**: Crea un nuevo usuario.
+2. **PUT /users/:id**: Actualiza los detalles de un usuario.
+4. **DELETE /users/:id**: Elimina un usuario.
+
+### Organizaciones
+1. **GET /organizations**: Obtiene todas las organizaciones.
+2. **GET /organizations/:orgId**: Obtiene una organización específica por su ID.
+3. **GET /organizations/:orgId/users**: Obtiene todos los usuarios de una organización.
+4. **POST /organizations**: Crea una nueva organización.
+5. **PUT /organizations/:orgId**: Actualiza los detalles de una organización.
 
 ## Estrategia de Autenticación y Autorización
 
