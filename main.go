@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/juanMaAV92/user-auth-api/utils/logger"
 	"log"
 	"os"
 
@@ -34,7 +35,7 @@ func main() {
 	errChannel := server.Start()
 
 	if err := <-errChannel; err != nil {
-		server.Logger.Printf("Error starting server: %v", err)
+		server.Logger.Info("server", "Error starting server", logger.Field("error", err))
 		os.Exit(1)
 	}
 }
