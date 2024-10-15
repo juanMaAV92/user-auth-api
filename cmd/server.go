@@ -1,19 +1,18 @@
 package cmd
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/fiber/v2/utils"
 	"github.com/juanMaAV92/user-auth-api/cmd/middleware"
-	"log"
-
-	"github.com/gofiber/fiber/v2"
 	"github.com/juanMaAV92/user-auth-api/config"
+	"github.com/juanMaAV92/user-auth-api/utils/logger"
 )
 
 type Server struct {
 	Fiber  *fiber.App
 	Config *config.Config
-	Logger *log.Logger
+	Logger *logger.Log
 }
 
 func NewServer(cfg config.Config) *Server {
@@ -21,6 +20,9 @@ func NewServer(cfg config.Config) *Server {
 		fiber.Config{
 			AppName: cfg.AppName,
 		})
+
+	// Logger
+	appLogger := logger.NewLogger(cfg)
 
 	// Global Middleware
 	fiberServer.Use(requestid.New(
@@ -31,18 +33,20 @@ func NewServer(cfg config.Config) *Server {
 			},
 			ContextKey: "trace_id",
 		}))
-	fiberServer.Use(middleware.CustomLogger)
+	fiberServer.Use(func(c *fiber.Ctx) error {
+		return middleware.RequestLogger(c, appLogger)
+	})
 
 	return &Server{
 		Fiber:  fiberServer,
 		Config: &cfg,
-		Logger: log.Default(),
+		Logger: appLogger,
 	}
 }
 
 func (s *Server) Start() <-chan error {
 
-	s.Logger.Printf("Starting server on port %s", s.Config.Port)
+	s.Logger.Info("server", "Starting server on port "+s.Config.Port)
 
 	errChan := make(chan error, 1)
 
