@@ -1,7 +1,8 @@
 package middleware
 
 import (
-	"github.com/juanMaAV92/user-auth-api/utils/logger"
+	"github.com/juanMaAV92/user-auth-api/utils"
+	"github.com/juanMaAV92/user-auth-api/utils/log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -26,13 +27,22 @@ type responseLog struct {
 	Status int    `json:"status"`
 }
 
-func RequestLogger(c *fiber.Ctx, log *logger.Log) error {
+func RequestLogger(c *fiber.Ctx, logger log.Logger) error {
 
 	start := time.Now()
 	traceID := c.Locals("trace_id").(string)
 
+	importantHeaders := []string{utils.HeaderAuthorization, utils.HeaderContentType, utils.HeaderUserAgent, utils.HeaderTraceID}
+	filteredHeaders := make(map[string][]string)
+
+	for _, key := range importantHeaders {
+		if value := c.Get(key); value != "" {
+			filteredHeaders[key] = []string{value}
+		}
+	}
+
 	request := requestLog{
-		Headers: c.GetReqHeaders(),
+		Headers: filteredHeaders,
 		Body:    string(c.Body()),
 	}
 
@@ -44,12 +54,14 @@ func RequestLogger(c *fiber.Ctx, log *logger.Log) error {
 		Body:   string(c.Response().Body()),
 	}
 
-	log.Info(traceID, "request",
-		logger.Field("method", c.Method()),
-		logger.Field("url", c.OriginalURL()),
-		logger.Field("request", request),
-		logger.Field("response", response),
-		logger.Field("duration", duration),
+	logger.Info(c.Context(), traceID, "request", "",
+		log.Fields(map[string]interface{}{
+			"method":   c.Method(),
+			"url":      c.OriginalURL(),
+			"request":  request,
+			"response": response,
+			"duration": duration,
+		}),
 	)
 
 	return err

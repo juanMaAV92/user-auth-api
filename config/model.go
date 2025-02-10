@@ -1,7 +1,14 @@
 package config
 
+import "time"
+
 type Config struct {
-	Port    string `json:"port"`
-	Env     string `json:"env"`
-	AppName string `json:"app_name"`
+	MicroserviceName string
+	Env              string
+	HTTP             HTTPConfig
+}
+
+type HTTPConfig struct {
+	Port          string
+	GracefullTime time.Duration
 }
