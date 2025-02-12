@@ -2,7 +2,7 @@ package tests
 
 import (
 	"fmt"
-	"github.com/juanMaAV92/user-auth-api/config"
+	"github.com/juanMaAV92/user-auth-api/platform/config"
 	"github.com/juanMaAV92/user-auth-api/test/helpers"
 	"io"
 	"net/http"

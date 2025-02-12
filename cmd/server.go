@@ -3,7 +3,7 @@ package cmd
 import (
 	"context"
 	"github.com/gofiber/fiber/v2"
-	"github.com/juanMaAV92/user-auth-api/config"
+	config2 "github.com/juanMaAV92/user-auth-api/platform/config"
 	"github.com/juanMaAV92/user-auth-api/services/health"
 	"github.com/juanMaAV92/user-auth-api/utils/log"
 	"net/http"
@@ -25,38 +25,34 @@ const (
 
 type AppServer struct {
 	Fiber  *fiber.App
-	Config *config.Config
+	Config *config2.Config
 	Logger log.Logger
 }
 
 func NewServer() *AppServer {
 	env := _getEnvironment()
-	logger := log.New(config.MicroserviceName, log.WithLevel(log.InfoLevel))
-	cfg, err := config.Load(env)
+	logger := log.New(config2.MicroserviceName, log.WithLevel(log.InfoLevel))
+	cfg, err := config2.Load(env)
 	if err != nil {
 		logger.Error(context.Background(), "", initServerStep, "Error loading config", log.Field("error", err))
 		panic("Error loading config: " + err.Error())
 	}
+
 	server := AppServer{
+		Fiber: fiber.New(
+			fiber.Config{
+				AppName: cfg.MicroserviceName,
+			}),
 		Config: &cfg,
 		Logger: logger,
 	}
-	server.init()
-	return &server
-}
-
-func (s *AppServer) init() {
-	s.Fiber = fiber.New(
-		fiber.Config{
-			AppName: s.Config.MicroserviceName,
-		})
-	services, err := s.initServices()
+	services, err := server.initServices()
 	if err != nil {
-		s.Logger.Error(context.Background(), "", initServerStep, "Error initializing services", log.Field("error", err))
+		server.Logger.Error(context.Background(), "", initServerStep, "Error initializing services", log.Field("error", err))
 		panic("Error initializing services: " + err.Error())
 	}
-	configRoutes(s, services)
-
+	configRoutes(&server, services)
+	return &server
 }
 
 func (s *AppServer) initServices() (*AppServices, error) {

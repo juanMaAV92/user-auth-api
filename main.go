@@ -8,7 +8,6 @@ import (
 
 func main() {
 	server := cmd.NewServer()
-	server.Start()
 	errChannel := server.Start()
 	if err := <-errChannel; err != nil {
 		server.Logger.Error(context.Background(), "", "", "Error while running", log.Field("error", err.Error()))
