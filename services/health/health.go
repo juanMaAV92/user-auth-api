@@ -2,6 +2,10 @@ package health
 
 type Service struct{}
 
+type HealthService interface {
+	HealthCheck() Response
+}
+
 func NewService() *Service {
 	return &Service{}
 }
