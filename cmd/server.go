@@ -4,7 +4,9 @@ import (
 	"context"
 	"github.com/gofiber/fiber/v2"
 	config2 "github.com/juanMaAV92/user-auth-api/platform/config"
+	"github.com/juanMaAV92/user-auth-api/platform/database"
 	"github.com/juanMaAV92/user-auth-api/services/health"
+	database2 "github.com/juanMaAV92/user-auth-api/utils/database"
 	"github.com/juanMaAV92/user-auth-api/utils/log"
 	"net/http"
 	"os"
@@ -24,9 +26,10 @@ const (
 )
 
 type AppServer struct {
-	Fiber  *fiber.App
-	Config *config2.Config
-	Logger log.Logger
+	Fiber    *fiber.App
+	Database *database.Database
+	Config   *config2.Config
+	Logger   log.Logger
 }
 
 func NewServer() *AppServer {
@@ -57,6 +60,12 @@ func NewServer() *AppServer {
 
 func (s *AppServer) initServices() (*AppServices, error) {
 	healthService := health.NewService()
+
+	db, err := database2.New(s.Config.Database)
+	if err != nil {
+		return nil, err
+	}
+	s.Database = db
 
 	return &AppServices{
 		HealthService: healthService,
